@@ -18,8 +18,8 @@ class BuderusKM100Gateway {
                 this.buderusApi.initApi().then(() => {
                     this.accessoriesStore.push(new burderus_outdoor_temperatur_1.BuderusOutdoorTemp(hap, this.log, "Außentemperatur", this.buderusApi));
                     callback(this.accessoriesStore);
-                }).catch(() => {
-                    this.log.error("Error initializing Buderus Api");
+                }).catch((error) => {
+                    this.log.error("Error initializing Buderus Api: %s", error);
                     callback([]);
                 });
             }

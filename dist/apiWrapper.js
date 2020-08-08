@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ApiWrapper = void 0;
 const km200_api_1 = require("km200-api");
 class ApiWrapper {
     constructor(log, host, key) {
@@ -17,26 +18,26 @@ class ApiWrapper {
                 console.log('Manufacturer: ' + data.value);
                 return this.api.getKM200('/gateway/versionHardware');
             }).catch((error) => {
-                reject();
+                reject(error);
             })
                 .then((data) => {
                 this._model = data.value;
                 console.log('Model: ' + data.value);
                 return this.api.getKM200('/gateway/versionFirmware');
             }).catch((error) => {
-                reject();
+                reject(error);
             }).then((data) => {
                 this._firmwareRevision = data.value;
                 console.log('Firmware Revision: ' + data.value);
                 return this.api.getKM200('/gateway/uuid');
             }).catch((error) => {
-                reject();
+                reject(error);
             }).then((data) => {
                 this._serialNumber = data.value;
                 console.log('Gateway Serial UUID: ' + data.value);
                 resolve();
             }).catch((error) => {
-                reject();
+                reject(error);
             });
         });
     }

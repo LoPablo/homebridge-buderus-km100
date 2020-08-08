@@ -1,5 +1,7 @@
 import {Km200} from "km200-api";
 import {Logging} from "homebridge";
+import {error} from "util";
+
 
 export class ApiWrapper {
 
@@ -27,26 +29,26 @@ export class ApiWrapper {
                 console.log('Manufacturer: ' + data.value);
                 return this.api.getKM200('/gateway/versionHardware');
             }).catch((error) => {
-                reject();
+                reject(error);
             })
             .then((data: { value: string; }) => {
                 this._model = data.value
                 console.log('Model: ' + data.value);
                 return this.api.getKM200('/gateway/versionFirmware');
             }).catch((error) => {
-                reject();
+                reject(error);
             }).then((data: { value: string; }) => {
                 this._firmwareRevision = data.value
                 console.log('Firmware Revision: ' + data.value);
                 return this.api.getKM200('/gateway/uuid');
             }).catch((error) => {
-                reject();
+                reject(error);
             }).then((data: { value: string; }) => {
                 this._serialNumber = data.value
                 console.log('Gateway Serial UUID: ' + data.value);
                 resolve();
             }).catch((error) => {
-                reject();
+                reject(error);
             })
         });
     }

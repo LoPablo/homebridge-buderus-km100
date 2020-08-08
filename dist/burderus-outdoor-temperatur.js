@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.BuderusOutdoorTemp = void 0;
 class BuderusOutdoorTemp {
     constructor(hap, log, name, buderusApi) {
         this.log = log;
