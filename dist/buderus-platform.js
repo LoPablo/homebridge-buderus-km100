@@ -20,14 +20,17 @@ class BuderusKM100Gateway {
                     callback(this.accessoriesStore);
                 }).catch(() => {
                     this.log.error("Error initializing Buderus Api");
+                    callback([]);
                 });
             }
             else {
                 this.log.error("Key is required in config.");
+                callback([]);
             }
         }
         else {
             this.log.error("Host is required in config.");
+            callback([]);
         }
     }
 }
