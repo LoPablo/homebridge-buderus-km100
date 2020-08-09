@@ -131,7 +131,7 @@ export class Api {
             }
             let getOptions: request.OptionsWithUri = {
                 uri: 'http://' + this._host + service,
-                timeout: 5000,
+                timeout: 10000,
                 headers: {
                     'agent': 'TeleHeater/2.2.3',
                     'User-Agent': 'TeleHeater/2.2.3',
