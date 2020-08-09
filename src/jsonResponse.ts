@@ -1,33 +1,39 @@
 export class JsonResponse{
     id? : string;
     type? : string;
-    writable? : number;
+    writeable? : number;
     recordable? : number;
     value? : any;
     allowedValues? : [any];
+    unitOfMeasure? : string;
+    raw : string;
 
-    constructor(id?: string, type?: string, writable?: number, recordable?: number, value? :any, allowedValues? : [any]) {
+    constructor(raw : string, id?: string, type?: string, writeable?: number, recordable?: number, value? :any, allowedValues? : [any] , unitOfMeasure? : string) {
        this.id=id;
        this.type=type;
-       this.writable=writable;
+       this.writeable=writeable;
        this.recordable=recordable;
        this.value=value;
        this.allowedValues=allowedValues;
+       this.unitOfMeasure = unitOfMeasure;
+       this.raw = raw;
     }
 
     static fromJSONString(json: string): JsonResponse {
         let jsonObject = JSON.parse(json);
-        return this.fromObject(jsonObject);
+        return this.fromObject(json, jsonObject);
     }
 
-    static fromObject(object: any): JsonResponse {
+    static fromObject(raw : string, object: any): JsonResponse {
         return new JsonResponse(
+            raw,
             object.id,
             object.type,
-            object.writable,
+            object.writeable,
             object.recordable,
             object.value,
-            object.allowedValues
+            object.allowedValues,
+            object.unitOfMeasure
         )
     }
 }

@@ -9,7 +9,7 @@ class BuderusOutdoorTemp {
         this.temperatureService = new hap.Service.TemperatureSensor(name);
         this.temperatureService.getCharacteristic(hap.Characteristic.CurrentTemperature)
             .on("get" /* GET */, (callback) => {
-            buderusApi.get('/system/sensors/temperatures/outdoor_t1').then((data) => {
+            buderusApi.enqueueGet('/system/sensors/temperatures/outdoor_t1').then((data) => {
                 if (data.value && data.type && data.type == 'floatValue') {
                     callback(undefined, data.value);
                     log.debug('New Outdoor Temp: %s', data.value);
@@ -40,4 +40,4 @@ class BuderusOutdoorTemp {
     }
 }
 exports.BuderusOutdoorTemp = BuderusOutdoorTemp;
-//# sourceMappingURL=burderus-outdoor-temperatur.js.map
+//# sourceMappingURL=buderus-outdoor-temperatur.js.map

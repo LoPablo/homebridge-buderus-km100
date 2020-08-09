@@ -1,6 +1,7 @@
 import {AccessoryPlugin, API, HAP, Logging, PlatformConfig, StaticPlatformPlugin,} from "homebridge";
-import {BuderusOutdoorTemp} from "./burderus-outdoor-temperatur";
+import {BuderusOutdoorTemp} from "./buderus-outdoor-temperatur";
 import {Api} from "./api";
+import {BuderusDhwHeatercooler} from "./buderus-dhw-heatercooler";
 
 const PLATFORM_NAME = "BuderusKM100Gateway";
 
@@ -32,6 +33,7 @@ class BuderusKM100Gateway implements StaticPlatformPlugin {
         this.buderusApi = new Api(this.log, this.config.host,this.config.gatewaypassword, this.config.userpassword);
         this.buderusApi.initApi().then(()=>{
           this.accessoriesStore.push(new BuderusOutdoorTemp(hap, this.log, "Außentemperatur",this.buderusApi!))
+          this.accessoriesStore.push(new BuderusDhwHeatercooler(hap, this.log, "Heißwasser",this.buderusApi!))
           callback(this.accessoriesStore);
         }).catch((error)=>{
           this.log.error("Error initializing Buderus Api: %s", error)

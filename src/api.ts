@@ -8,6 +8,7 @@ import * as request from "request-promise-native";
 import RijndaelBlock from "rijndael-js";
 import {JsonResponse} from "./jsonResponse";
 import {Logging} from "homebridge";
+import Deferred from "./Deffered";
 
 
 const km200_crypt_md5_salt = new Uint8Array([
@@ -24,6 +25,7 @@ export class Api {
     private readonly _cipher: RijndaelBlock;
     private readonly _key: Buffer;
     private readonly _iv: Buffer;
+    private readonly _promiseQueue: Array<Deferred<JsonResponse>>;
 
     constructor(log: Logging, host: string, gatewaypassword: string, privatepassword: string) {
         this.log = log;
@@ -36,6 +38,7 @@ export class Api {
         this._key = Buffer.from(this._aesKey, 'hex');
         this._iv = crypto.randomBytes(32);
         this._cipher = new RijndaelBlock(this._key, 'ecb');
+        this._promiseQueue = [];
     }
 
     private _manufacturer: string;
@@ -124,8 +127,38 @@ export class Api {
         });
     }
 
+    private runNext() {
+        if (this._promiseQueue.length > 0){
+            let frontDefferedResult = this._promiseQueue[0];
+            frontDefferedResult.execute();
+        }
+    }
+
+    public enqueueGet(service : string) : Deferred<JsonResponse>{
+        let defferedResult = new Deferred<JsonResponse>((resolve, reject)=>{
+            this.get(service).then((value) => {
+                resolve(value);
+            }).catch((error)=>{
+                reject(error);
+            });
+            setTimeout(()=>{
+                this._promiseQueue.shift();
+                this.runNext()
+                },100);
+        }, false);
+        if (this._promiseQueue.length == 0){
+            this._promiseQueue.push(defferedResult);
+            this.runNext();
+        }else {
+            this._promiseQueue.push(defferedResult);
+        }
+
+
+        return defferedResult;
+    }
+
     public get(service: string): Promise<JsonResponse> {
-        return new Promise<object>((resolve, reject) => {
+        return new Promise<JsonResponse>((resolve, reject) => {
             if (!service || service.length < 2 || service[0] !== '/') {
                 reject('Get service parameter wrong');
             }
@@ -138,26 +171,19 @@ export class Api {
                     'Accept': 'application/json',
                 }
             };
-            request.get(getOptions, (error, response) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    if (response.statusCode !== 200) {
-                        reject('KM200 response Error: ' + response.statusCode);
-                    } else {
-                        let s = this.decrypt(response.body);
-                        resolve(JsonResponse.fromJSONString(this.removeNonValidChars(s)));
-                    }
-                }
+            request.get(getOptions).then((response) =>{
+                    let s = this.decrypt(response);
+                    resolve(JsonResponse.fromJSONString(this.removeNonValidChars(s)));
+            }).catch((error)=> {
+                this.log("Request %s had error: %s",service, error);
+                reject(error);
             });
         });
     }
 
     private decrypt(body: string): string {
-        console.time("decrypt");
         var enc = Buffer.from(body, 'base64');
         var plaintext = Buffer.from(this._cipher.decrypt(enc, '128', this._iv));
-        console.timeEnd("decrypt");
         return plaintext.toString();
     };
 

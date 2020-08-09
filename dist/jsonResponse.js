@@ -2,20 +2,22 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.JsonResponse = void 0;
 class JsonResponse {
-    constructor(id, type, writable, recordable, value, allowedValues) {
+    constructor(raw, id, type, writeable, recordable, value, allowedValues, unitOfMeasure) {
         this.id = id;
         this.type = type;
-        this.writable = writable;
+        this.writeable = writeable;
         this.recordable = recordable;
         this.value = value;
         this.allowedValues = allowedValues;
+        this.unitOfMeasure = unitOfMeasure;
+        this.raw = raw;
     }
     static fromJSONString(json) {
         let jsonObject = JSON.parse(json);
-        return this.fromObject(jsonObject);
+        return this.fromObject(json, jsonObject);
     }
-    static fromObject(object) {
-        return new JsonResponse(object.id, object.type, object.writable, object.recordable, object.value, object.allowedValues);
+    static fromObject(raw, object) {
+        return new JsonResponse(raw, object.id, object.type, object.writeable, object.recordable, object.value, object.allowedValues, object.unitOfMeasure);
     }
 }
 exports.JsonResponse = JsonResponse;

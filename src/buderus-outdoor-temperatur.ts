@@ -27,7 +27,7 @@ export class BuderusOutdoorTemp implements AccessoryPlugin {
     this.temperatureService = new hap.Service.TemperatureSensor(name);
     this.temperatureService.getCharacteristic(hap.Characteristic.CurrentTemperature)
         .on(CharacteristicEventTypes.GET, (callback: CharacteristicGetCallback) => {
-          buderusApi.get('/system/sensors/temperatures/outdoor_t1').then((data)=>{
+          buderusApi.enqueueGet('/system/sensors/temperatures/outdoor_t1').then((data)=>{
             if (data.value && data.type && data.type == 'floatValue') {
               callback(undefined,data.value);
               log.debug('New Outdoor Temp: %s', data.value);

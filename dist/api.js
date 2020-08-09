@@ -31,6 +31,7 @@ const crypto = __importStar(require("crypto"));
 const request = __importStar(require("request-promise-native"));
 const rijndael_js_1 = __importDefault(require("rijndael-js"));
 const jsonResponse_1 = require("./jsonResponse");
+const Deffered_1 = __importDefault(require("./Deffered"));
 const km200_crypt_md5_salt = new Uint8Array([
     0x86, 0x78, 0x45, 0xe9, 0x7c, 0x4e, 0x29, 0xdc,
     0xe5, 0x22, 0xb9, 0xa7, 0xd3, 0xa3, 0xe0, 0x7b,
@@ -49,6 +50,7 @@ class Api {
         this._key = Buffer.from(this._aesKey, 'hex');
         this._iv = crypto.randomBytes(32);
         this._cipher = new rijndael_js_1.default(this._key, 'ecb');
+        this._promiseQueue = [];
     }
     get manufacturer() {
         return this._manufacturer;
@@ -120,6 +122,33 @@ class Api {
         return new Promise((resolve, reject) => {
         });
     }
+    runNext() {
+        if (this._promiseQueue.length > 0) {
+            let frontDefferedResult = this._promiseQueue[0];
+            frontDefferedResult.execute();
+        }
+    }
+    enqueueGet(service) {
+        let defferedResult = new Deffered_1.default((resolve, reject) => {
+            this.get(service).then((value) => {
+                resolve(value);
+            }).catch((error) => {
+                reject(error);
+            });
+            setTimeout(() => {
+                this._promiseQueue.shift();
+                this.runNext();
+            }, 100);
+        }, false);
+        if (this._promiseQueue.length == 0) {
+            this._promiseQueue.push(defferedResult);
+            this.runNext();
+        }
+        else {
+            this._promiseQueue.push(defferedResult);
+        }
+        return defferedResult;
+    }
     get(service) {
         return new Promise((resolve, reject) => {
             if (!service || service.length < 2 || service[0] !== '/') {
@@ -134,27 +163,18 @@ class Api {
                     'Accept': 'application/json',
                 }
             };
-            request.get(getOptions, (error, response) => {
-                if (error) {
-                    reject(error);
-                }
-                else {
-                    if (response.statusCode !== 200) {
-                        reject('KM200 response Error: ' + response.statusCode);
-                    }
-                    else {
-                        let s = this.decrypt(response.body);
-                        resolve(jsonResponse_1.JsonResponse.fromJSONString(this.removeNonValidChars(s)));
-                    }
-                }
+            request.get(getOptions).then((response) => {
+                let s = this.decrypt(response);
+                resolve(jsonResponse_1.JsonResponse.fromJSONString(this.removeNonValidChars(s)));
+            }).catch((error) => {
+                this.log("Request %s had error: %s", service, error);
+                reject(error);
             });
         });
     }
     decrypt(body) {
-        console.time("decrypt");
         var enc = Buffer.from(body, 'base64');
         var plaintext = Buffer.from(this._cipher.decrypt(enc, '128', this._iv));
-        console.timeEnd("decrypt");
         return plaintext.toString();
     }
     ;
