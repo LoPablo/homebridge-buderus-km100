@@ -151,8 +151,10 @@ class Api {
         });
     }
     decrypt(body) {
+        console.time("decrypt");
         var enc = Buffer.from(body, 'base64');
         var plaintext = Buffer.from(this._cipher.decrypt(enc, '128', this._iv));
+        console.timeEnd("decrypt");
         return plaintext.toString();
     }
     ;
