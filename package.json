@@ -24,12 +24,17 @@
   ],
   "devDependencies": {
     "@types/node": "10.17.19",
-    "typescript": "^3.8.3",
+    "@types/request": "^2.48.5",
+    "@types/request-promise-native": "^1.0.17",
+    "@types/rijndael-js": "^1.0.0",
+    "homebridge": "^1.0.4",
     "rimraf": "^3.0.2",
-    "homebridge": "^1.0.4"
+    "typescript": "^3.8.3"
   },
   "dependencies": {
-    "km200-api": "^0.2.3",
-    "tslib": "^2.0.1"
+    "js-rijndael": "^1.0.0",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.9",
+    "rijndael-js": "^2.0.0"
   }
 }

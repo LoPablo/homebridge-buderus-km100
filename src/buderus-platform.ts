@@ -1,6 +1,6 @@
 import {AccessoryPlugin, API, HAP, Logging, PlatformConfig, StaticPlatformPlugin,} from "homebridge";
 import {BuderusOutdoorTemp} from "./burderus-outdoor-temperatur";
-import {ApiWrapper} from "./apiWrapper";
+import {Api} from "./api";
 
 const PLATFORM_NAME = "BuderusKM100Gateway";
 
@@ -17,7 +17,7 @@ class BuderusKM100Gateway implements StaticPlatformPlugin {
   private readonly accessoriesStore : AccessoryPlugin[];
   private readonly config : PlatformConfig;
 
-  private buderusApi? : ApiWrapper;
+  private buderusApi? : Api;
   constructor(log: Logging, config: PlatformConfig, api: API) {
     this.log = log;
     this.config = config;
@@ -28,8 +28,8 @@ class BuderusKM100Gateway implements StaticPlatformPlugin {
 
   accessories(callback: (foundAccessories: AccessoryPlugin[]) => void): void {
     if (this.config.host){
-      if (this.config.key){
-        this.buderusApi = new ApiWrapper(this.log,this.config.host,this.config.key);
+      if (this.config.gatewaypassword && this.config.userpassword){
+        this.buderusApi = new Api(this.log, this.config.host,this.config.gatewaypassword, this.config.userpassword);
         this.buderusApi.initApi().then(()=>{
           this.accessoriesStore.push(new BuderusOutdoorTemp(hap, this.log, "Außentemperatur",this.buderusApi!))
           callback(this.accessoriesStore);
