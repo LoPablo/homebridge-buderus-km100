@@ -20,7 +20,6 @@ export default class Deferred<T> implements Promise<T> {
             this._timeout = setTimeout(() => {
                 this.reject("timeout")
             }, 5000)
-            console.log("ran ex");
             this._executor.call(this, this._resolveSelf, this._rejectSelf)
         }
     }
@@ -60,7 +59,6 @@ export default class Deferred<T> implements Promise<T> {
     }
 
     public execute(){
-        console.log("ran ex on command");
         this._timeout = setTimeout(() => {
             this.reject("timeout")
         }, 5000)

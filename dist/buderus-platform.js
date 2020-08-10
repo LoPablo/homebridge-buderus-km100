@@ -1,7 +1,7 @@
 "use strict";
 const buderus_outdoor_temperatur_1 = require("./buderus-outdoor-temperatur");
 const api_1 = require("./api");
-const buderus_dhw_heatercooler_1 = require("./buderus-dhw-heatercooler");
+const buderus_dhw_heater_cooler_1 = require("./buderus-dhw-heater-cooler");
 const PLATFORM_NAME = "BuderusKM100Gateway";
 let hap;
 class BuderusKM100Gateway {
@@ -18,7 +18,7 @@ class BuderusKM100Gateway {
                 this.buderusApi = new api_1.Api(this.log, this.config.host, this.config.gatewaypassword, this.config.userpassword);
                 this.buderusApi.initApi().then(() => {
                     this.accessoriesStore.push(new buderus_outdoor_temperatur_1.BuderusOutdoorTemp(hap, this.log, "Außentemperatur", this.buderusApi));
-                    this.accessoriesStore.push(new buderus_dhw_heatercooler_1.BuderusDhwHeatercooler(hap, this.log, "Heißwasser", this.buderusApi));
+                    this.accessoriesStore.push(new buderus_dhw_heater_cooler_1.BuderusDhwHeaterCooler(hap, this.log, "Heißwasser", this.buderusApi));
                     callback(this.accessoriesStore);
                 }).catch((error) => {
                     this.log.error("Error initializing Buderus Api: %s", error);

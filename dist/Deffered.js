@@ -12,7 +12,6 @@ class Deferred {
             this._timeout = setTimeout(() => {
                 this.reject("timeout");
             }, 5000);
-            console.log("ran ex");
             this._executor.call(this, this._resolveSelf, this._rejectSelf);
         }
     }
@@ -38,7 +37,6 @@ class Deferred {
         this._rejectSelf(reason);
     }
     execute() {
-        console.log("ran ex on command");
         this._timeout = setTimeout(() => {
             this.reject("timeout");
         }, 5000);

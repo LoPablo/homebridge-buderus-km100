@@ -11,26 +11,31 @@ import {
 
 import {Api} from "./api";
 
-export class BuderusDhwHeatercooler implements AccessoryPlugin {
+export class BuderusDhwHeaterCooler implements AccessoryPlugin {
 
   private readonly log: Logging;
   name: string;
 
   private readonly informationService: Service;
   private readonly heaterCoolerService : Service;
+  private readonly waterFlowService : Service;
   private readonly buderusApi : Api;
 
   constructor(hap: HAP, log: Logging, name: string, buderusApi : Api) {
     this.log = log;
     this.name = name;
     this.buderusApi = buderusApi;
-    this.heaterCoolerService = new hap.Service.HeaterCooler(name);
+    this.heaterCoolerService = new hap.Service.HeaterCooler(name + " Einstelungen");
+    this.waterFlowService = new hap.Service.MotionSensor(name + " Wasserfluss");
 
+
+
+    this.waterFlowService.getCharacteristic(hap.Characteristic.MotionDetected)
+        .on('get', this.handleMotionDetectedGet.bind(this));
 
     this.heaterCoolerService.getCharacteristic(hap.Characteristic.Active)
         .on('get', this.handleActiveGet.bind(this))
-        .on('set', this.handleActiveSet.bind(this))
-  //.props.perms = [hap.Perms.PAIRED_READ];
+        .on('set', this.handleActiveSet.bind(this));
 
     this.heaterCoolerService.getCharacteristic(hap.Characteristic.CurrentHeaterCoolerState)
         .on('get', this.handleCurrentHeaterCoolerStateGet.bind(this));
@@ -53,27 +58,38 @@ export class BuderusDhwHeatercooler implements AccessoryPlugin {
     this.heaterCoolerService.getCharacteristic(hap.Characteristic.CurrentTemperature)
         .on('get', this.handleCurrentTemperatureGet.bind(this));
 
-    // this.heaterCoolerService.getCharacteristic(hap.Characteristic.CurrentTemperature)
-    //     .on(CharacteristicEventTypes.GET, (callback: CharacteristicGetCallback) => {
-    //       buderusApi.get('/dhwCircuits/dhw1/actualTemp').then((data)=>{
-    //         if (data.value && data.type && data.type == 'floatValue') {
-    //           callback(undefined,data.value);
-    //           log.debug('New Outdoor Temp: %s', data.value);
-    //         }else{
-    //           callback(new Error("Missing JSON Values"));
-    //           log.debug('Missing JSON Values');
-    //         }
-    //       }).catch((error)=>{
-    //         callback(error);
-    //       })
-    //     });
     this.informationService = new hap.Service.AccessoryInformation()
         .setCharacteristic(hap.Characteristic.Manufacturer, buderusApi.manufacturer)
         .setCharacteristic(hap.Characteristic.Model, buderusApi.model)
         .setCharacteristic(hap.Characteristic.FirmwareRevision,buderusApi.firmwareRevision)
-        .setCharacteristic(hap.Characteristic.SerialNumber,buderusApi.serialNumber)
-
+        .setCharacteristic(hap.Characteristic.SerialNumber,buderusApi.serialNumber);
+    this.buderusApi.enqueueGet('/dhwCircuits/dhw1/waterFlow').then((data)=>{
+      console.log(data)
+    }).catch((error)=>{
+      this.log.debug('Active request error');
+    })
     log.info("%s created!", name);
+  }
+
+  handleMotionDetectedGet(callback : CharacteristicGetCallback) {
+    this.log.debug('Triggered GET MotionDetected');
+        this.buderusApi.enqueueGet('/dhwCircuits/dhw1/waterFlow').then((data)=>{
+      if ((data.value || data.value==0) && data.type && data.type == 'floatValue') {
+        if (data.value > 0){
+          callback(undefined,1);
+          this.log.debug('New MotionDetected: %s', data.value);
+        } else {
+          callback(undefined,0);
+          this.log.debug('New MotionDetected %s', data.value);
+        }
+      }else{
+        callback(new Error("Missing JSON Values"));
+        this.log.debug('Missing JSON Values');
+      }
+    }).catch((error)=>{
+      this.log.debug('Active request error');
+      callback(error);
+    })
   }
 
   handleActiveGet(callback : CharacteristicGetCallback) {
@@ -179,7 +195,8 @@ export class BuderusDhwHeatercooler implements AccessoryPlugin {
   getServices(): Service[] {
     return [
       this.informationService,
-      this.heaterCoolerService
+      this.heaterCoolerService,
+        this.waterFlowService
     ];
   }
 
