@@ -9,6 +9,7 @@ import RijndaelBlock from "rijndael-js";
 import {JsonResponse} from "./jsonResponse";
 import {Logging} from "homebridge";
 import Deferred from "./Deffered";
+import apiValueDelegate from "./apiValueDelegate";
 
 
 const km200_crypt_md5_salt = new Uint8Array([
@@ -135,6 +136,7 @@ export class Api {
     }
 
     public enqueueGet(service : string) : Deferred<JsonResponse>{
+        this.log.debug("Queue length: %s", this._promiseQueue.length);
         let defferedResult = new Deferred<JsonResponse>((resolve, reject)=>{
             this.get(service).then((value) => {
                 resolve(value);
@@ -144,7 +146,7 @@ export class Api {
             setTimeout(()=>{
                 this._promiseQueue.shift();
                 this.runNext()
-                },100);
+                },300);
         }, false);
         if (this._promiseQueue.length == 0){
             this._promiseQueue.push(defferedResult);
@@ -236,5 +238,16 @@ export class Api {
         //            let km200_crypt_key_initial = key_1 + key_2_initial;
         let km200_crypt_key_private = key_1 + key_2_private;
         return km200_crypt_key_private.trim().toLowerCase();
+    }
+
+    public registerValueListener(service : string, interval : number, valueDelegate : apiValueDelegate) : ReturnType<typeof setInterval>{
+        return  setInterval(()=>{
+            this.enqueueGet(service).then((value) =>{
+                valueDelegate.hasNewValue(value);
+            }).catch((error)=>{
+                valueDelegate.hadNewValueError(error);
+            });
+        },interval)
+
     }
 }

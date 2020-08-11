@@ -129,6 +129,7 @@ class Api {
         }
     }
     enqueueGet(service) {
+        this.log.debug("Queue length: %s", this._promiseQueue.length);
         let defferedResult = new Deffered_1.default((resolve, reject) => {
             this.get(service).then((value) => {
                 resolve(value);
@@ -138,7 +139,7 @@ class Api {
             setTimeout(() => {
                 this._promiseQueue.shift();
                 this.runNext();
-            }, 100);
+            }, 300);
         }, false);
         if (this._promiseQueue.length == 0) {
             this._promiseQueue.push(defferedResult);
@@ -224,6 +225,15 @@ class Api {
         //            let km200_crypt_key_initial = key_1 + key_2_initial;
         let km200_crypt_key_private = key_1 + key_2_private;
         return km200_crypt_key_private.trim().toLowerCase();
+    }
+    registerValueListener(service, interval, valueDelegate) {
+        return setInterval(() => {
+            this.enqueueGet(service).then((value) => {
+                valueDelegate.hasNewValue(value);
+            }).catch((error) => {
+                valueDelegate.hadNewValueError(error);
+            });
+        }, interval);
     }
 }
 exports.Api = Api;

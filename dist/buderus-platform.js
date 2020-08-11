@@ -17,8 +17,8 @@ class BuderusKM100Gateway {
             if (this.config.gatewaypassword && this.config.userpassword) {
                 this.buderusApi = new api_1.Api(this.log, this.config.host, this.config.gatewaypassword, this.config.userpassword);
                 this.buderusApi.initApi().then(() => {
-                    this.accessoriesStore.push(new buderus_outdoor_temperatur_1.BuderusOutdoorTemp(hap, this.log, "Außentemperatur", this.buderusApi));
-                    this.accessoriesStore.push(new buderus_dhw_heater_cooler_1.BuderusDhwHeaterCooler(hap, this.log, "Heißwasser", this.buderusApi));
+                    this.accessoriesStore.push(new buderus_outdoor_temperatur_1.BuderusOutdoorTemp(hap, this.log, "Außentemperatur", this.buderusApi, (this.config.pollingInterval * 3) || 30000));
+                    this.accessoriesStore.push(new buderus_dhw_heater_cooler_1.BuderusDhwHeaterCooler(hap, this.log, "Heißwasser", this.buderusApi, this.config.pollingInterval || 10000));
                     callback(this.accessoriesStore);
                 }).catch((error) => {
                     this.log.error("Error initializing Buderus Api: %s", error);

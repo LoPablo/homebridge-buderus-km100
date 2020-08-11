@@ -32,8 +32,8 @@ class BuderusKM100Gateway implements StaticPlatformPlugin {
       if (this.config.gatewaypassword && this.config.userpassword){
         this.buderusApi = new Api(this.log, this.config.host,this.config.gatewaypassword, this.config.userpassword);
         this.buderusApi.initApi().then(()=>{
-          this.accessoriesStore.push(new BuderusOutdoorTemp(hap, this.log, "Außentemperatur",this.buderusApi!))
-          this.accessoriesStore.push(new BuderusDhwHeaterCooler(hap, this.log, "Heißwasser",this.buderusApi!))
+          this.accessoriesStore.push(new BuderusOutdoorTemp(hap, this.log, "Außentemperatur",this.buderusApi!,(this.config.pollingInterval * 3) || 30000));
+          this.accessoriesStore.push(new BuderusDhwHeaterCooler(hap, this.log, "Heißwasser",this.buderusApi!, this.config.pollingInterval || 10000));
           callback(this.accessoriesStore);
         }).catch((error)=>{
           this.log.error("Error initializing Buderus Api: %s", error)
