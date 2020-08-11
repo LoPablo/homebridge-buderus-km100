@@ -175,7 +175,7 @@ class BuderusDhwHeaterCooler {
                 case '/heatSources/actualDHWPower':
                     if ((data.value || data.value == 0) && data.type && data.type == 'floatValue') {
                         if (data.value > 0) {
-                            this.heaterCoolerService.updateCharacteristic(this.hap.Characteristic.CurrentHeaterCoolerState, 1);
+                            this.heaterCoolerService.updateCharacteristic(this.hap.Characteristic.CurrentHeaterCoolerState, 2);
                             this.log.debug('New Heater Cooler Power: %s', data.value);
                         }
                         else {
