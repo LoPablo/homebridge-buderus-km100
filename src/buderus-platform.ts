@@ -1,7 +1,8 @@
 import {AccessoryPlugin, API, HAP, Logging, PlatformConfig, StaticPlatformPlugin,} from "homebridge";
 import {BuderusOutdoorTemp} from "./buderus-outdoor-temperatur";
 import {Api} from "./api";
-import {BuderusDhwHeaterCooler} from "./buderus-dhw-heater-cooler";
+import {BuderusDhw} from "./buderus-dhw";
+import {BuderusHC1} from "./buderus-hc1";
 
 const PLATFORM_NAME = "BuderusKM100Gateway";
 
@@ -23,7 +24,7 @@ class BuderusKM100Gateway implements StaticPlatformPlugin {
     this.log = log;
     this.config = config;
     log.info("Burderus KM100 Gateway - Plattform");
-    log.info("Version 0.1 PHartmann")
+    log.info("Version 0.3 PHartmann")
     this.accessoriesStore = new Array();
   }
 
@@ -33,7 +34,8 @@ class BuderusKM100Gateway implements StaticPlatformPlugin {
         this.buderusApi = new Api(this.log, this.config.host,this.config.gatewaypassword, this.config.userpassword);
         this.buderusApi.initApi().then(()=>{
           this.accessoriesStore.push(new BuderusOutdoorTemp(hap, this.log, "Außentemperatur",this.buderusApi!,(this.config.pollingInterval * 3) || 30000));
-          this.accessoriesStore.push(new BuderusDhwHeaterCooler(hap, this.log, "Heißwasser",this.buderusApi!, this.config.pollingInterval || 10000));
+          this.accessoriesStore.push(new BuderusDhw(hap, this.log, "Heißwasser",this.buderusApi!, this.config.pollingInterval || 10000));
+          this.accessoriesStore.push(new BuderusHC1(hap, this.log, "Heizkreislauf",this.buderusApi!, this.config.pollingInterval || 10000))
           callback(this.accessoriesStore);
         }).catch((error)=>{
           this.log.error("Error initializing Buderus Api: %s", error)

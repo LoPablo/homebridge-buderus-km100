@@ -146,7 +146,7 @@ export class Api {
             setTimeout(()=>{
                 this._promiseQueue.shift();
                 this.runNext()
-                },300);
+                },300 + 10 * this._promiseQueue.length);
         }, false);
         if (this._promiseQueue.length == 0){
             this._promiseQueue.push(defferedResult);
@@ -241,13 +241,13 @@ export class Api {
     }
 
     public registerValueListener(service : string, interval : number, valueDelegate : apiValueDelegate) : ReturnType<typeof setInterval>{
-        return  setInterval(()=>{
+        return setInterval(()=>{
             this.enqueueGet(service).then((value) =>{
                 valueDelegate.hasNewValue(value);
             }).catch((error)=>{
                 valueDelegate.hadNewValueError(error);
             });
-        },interval)
+        },interval + Math.floor(Math.random() * 500))
 
     }
 }

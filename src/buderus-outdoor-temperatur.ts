@@ -34,10 +34,10 @@ export class BuderusOutdoorTemp implements AccessoryPlugin, apiValueDelegate {
           buderusApi.enqueueGet('/system/sensors/temperatures/outdoor_t1').then((data)=>{
             if (data.value && data.type && data.type == 'floatValue') {
               callback(undefined,data.value);
-              log.debug('New Outdoor Temp: %s', data.value);
+              log.debug('%s: New CurrentTemperature: %s', this.name, data.value);
             }else{
-              callback(new Error("Missing JSON Values"));
-              log.debug('Missing JSON Values');
+              callback(new Error(this.name + ': Missing CurrentTemperature JSON Values'));
+              log.debug('%s: Missing CurrentTemperature JSON Values', this.name);
             }
           }).catch((error)=>{
             callback(error);
@@ -57,17 +57,17 @@ export class BuderusOutdoorTemp implements AccessoryPlugin, apiValueDelegate {
   }
 
   identify(): void {
-    this.log("Identify!");
+    this.log('%s: Identify!', this.name);
   }
 
   hasNewValue(data : JsonResponse) {
     if (data && data.id) {
-      this.log.debug('New Value arrived for: %s',data.id);
+      this.log.debug('%s: New Value arrived for: %s', this.name, data.id);
           if ((data.value || data.value==0) && data.id == '/system/sensors/temperatures/outdoor_t1' && data.type && data.type == 'floatValue') {
             this.temperatureService.updateCharacteristic(this.hap.Characteristic.CurrentTemperature, data.value);
-            this.log.debug('New DHW CurrentTemperature: %s', data.value);
+            this.log.debug('%s: New CurrentTemperature: %s', this.name, data.value);
           }else{
-            this.log.debug('Missing JSON Values');
+            this.log.debug('%s: Missing CurrentTemperatur JSON Values', this.name);
           }
     }
   }

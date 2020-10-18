@@ -139,7 +139,7 @@ class Api {
             setTimeout(() => {
                 this._promiseQueue.shift();
                 this.runNext();
-            }, 300);
+            }, 300 + 10 * this._promiseQueue.length);
         }, false);
         if (this._promiseQueue.length == 0) {
             this._promiseQueue.push(defferedResult);
@@ -233,7 +233,7 @@ class Api {
             }).catch((error) => {
                 valueDelegate.hadNewValueError(error);
             });
-        }, interval);
+        }, interval + Math.floor(Math.random() * 500));
     }
 }
 exports.Api = Api;
