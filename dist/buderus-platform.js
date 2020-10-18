@@ -21,14 +21,6 @@ class BuderusKM100Gateway {
                     this.accessoriesStore.push(new buderus_outdoor_temperatur_1.BuderusOutdoorTemp(hap, this.log, "Außentemperatur", this.buderusApi, (this.config.pollingInterval * 3) || 30000));
                     this.accessoriesStore.push(new buderus_dhw_1.BuderusDhw(hap, this.log, "Heißwasser", this.buderusApi, this.config.pollingInterval || 10000));
                     this.accessoriesStore.push(new buderus_hc1_1.BuderusHC1(hap, this.log, "Heizkreislauf", this.buderusApi, this.config.pollingInterval || 10000));
-                    this.buderusApi.enqueueGet('/heatingCircuits/hc1/operationMode').then((data) => {
-                        if (data) {
-                            console.log(data);
-                        }
-                    }).catch((error) => {
-                        this.log.debug('Active request error');
-                        callback(error);
-                    });
                     callback(this.accessoriesStore);
                 }).catch((error) => {
                     this.log.error("Error initializing Buderus Api: %s", error);
